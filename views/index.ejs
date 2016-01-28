@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1.0, user-scalable=0">
+
+    <link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/imageupload.css">
+    <script src="/javascripts/jquery-1.11.3.min.js"></script>
+
+    <script src="/javascripts/jquery.mobile.custom.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script src="/javascripts/socket.io-1.4.1.min.js"></script>
+    <!--<script src="/javascripts/html5imageupload.js"></script>-->
+    <script src="/javascripts/drawTool.js"></script>
+    <script>
+        var socket;
+        var roomID = '<%=room%>';
+        var username = '<%=name%>'
+        $(document).ready(function() {
+            socket = io.connect('http://101.5.210.245:3000');
+            socket.on('connect', function (data) {
+                socket.emit('join', {'room': roomID, 'username': username});
+
+            });
+            defineDrawTool();
+            drawTool = new DrawTool("pencil","#canvas1");
+            $("#clearboard").click(function(e){
+                drawTool.clear();
+            });
+            {
+                minute = 0;
+                second = 0;
+            }
+        });
+
+    </script>
+    <script src="/javascripts/jcanvas.js"></script>
+    <script src="/javascripts/clientMain.js"></script>
+</head>
+<body>
+    <div id="toolbar">
+        <!--<div id="clearboard" class="btn">clear</div>-->
+        <!--<div id="colorselect" class="btn">color</div>-->
+        <!--<div id="sizeselect" class="btn">size</div>-->
+        <!--<div id="toolselect" class="btn">tooltype</div>-->
+        <!--<div id="eraser" class="btn">eraser</div>-->
+        <div class="dropdown menu-btn">
+            <button id="toolselect" href="#" class="dropdown-toggle menu-btn" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <img id="toolselecticon" class="tool-select-img" src="/images/pen.png"/>
+            </button>
+            <ul id="toolselectMenu" class="dropdown-menu" aria-labelledby="toolselect">
+                <li><a href="javascript:setTool('pen')">
+                        <img class="tool-select-img" src="/images/pen.png"/>
+                    </a></li>
+                <li><a href="javascript:setTool('pencil')">
+                        <img class="tool-select-img" src="/images/pencil.png"/>
+                    </a></li>
+
+                <li><a href="javascript:setTool('highlighter')">
+                        <img class="tool-select-img" src="/images/highlighter.png"/>
+                    </a></li>
+
+                <li><a href="javascript:setTool('eraser')">
+                        <img class="tool-select-img" src="/images/eraser.png"/>
+                    </a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="javascript:clearBoard()">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </a></li>
+            </ul>
+        </div>
+
+        <div  class="dropdown menu-btn">
+            <button id="sizeselect" href="#" class="dropdown-toggle menu-btn" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <div id="sizeselecticon" class="round-wrapper round-wrapper-1">
+                <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"></path>
+                </svg>
+                </div>
+            </button>
+            <ul id="toolselectMenu" class="dropdown-menu" aria-labelledby="toolselect">
+                <li><a href="javascript:setSize(3)">
+                        <div class="round-wrapper round-wrapper-1">
+                            <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"></path>
+                            </svg>
+                        </div>
+                    </a></li>
+                <li><a href="javascript:setSize(5)">
+                        <div class="round-wrapper round-wrapper-2">
+                            <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"></path>
+                            </svg>
+                        </div>
+                    </a></li>
+                <li><a href="javascript:setSize(8)">
+                        <div class="round-wrapper  round-wrapper-3">
+                            <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"></path>
+                            </svg>
+                        </div>
+                    </a></li>
+                <li><a href="javascript:setSize(12)">
+                        <div class="round-wrapper round-wrapper-4">
+                            <svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1664 896q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"></path>
+                            </svg>
+                        </div>
+                    </a></li>
+            </ul>
+        </div>
+
+        <div  class="dropdown menu-btn">
+            <button  href="#" class="dropdown-toggle menu-btn" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <div id="colorselect" class="color color-1"></div>
+            </button>
+            <ul id="toolselectMenu" class="dropdown-menu" aria-labelledby="toolselect">
+                <li><a href="javascript:setColor(1)">
+                        <div class="color color-1"></div>
+                    </a></li>
+                <li><a href="javascript:setColor(2)">
+                        <div class="color color-2"></div>
+                    </a></li>
+                <li><a href="javascript:setColor(3)">
+                        <div class="color color-3"></div>
+                    </a></li>
+                <li><a href="javascript:setColor(4)">
+                        <div class="color color-4"></div>
+                    </a></li>
+                <li><a href="javascript:setColor(5)">
+                        <div class="color color-5"></div>
+                    </a></li>
+            </ul>
+        </div>
+
+        <div  class="dropdown menu-btn">
+            <button  href="#" class="dropdown-toggle menu-btn" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <span id="timeshow">00:00</span>
+            </button>
+            <ul id="toolselectMenu" class="dropdown-menu" aria-labelledby="toolselect">
+                <li><a id="startTick" href="javascript:startTick()">
+                        开始计时
+                    </a></li>
+                <li><a href="javascript:finishLesson()">
+                        结束讲课
+                    </a></li>
+
+            </ul>
+        </div>
+        <div style="display: none">
+            <img class="tool-select-img" id="brush0" src="/images/brush1.png"/>
+            <img class="tool-select-img" id="brush1" src="/images/brush2.png"/>
+            <img class="tool-select-img" id="brush2" src="/images/brush3.png"/>
+            <img class="tool-select-img" id="brush3" src="/images/brush4.png"/>
+            <img class="tool-select-img" id="brush4" src="/images/brush5.png"/>
+        </div>
+
+        <!--<div id = "select" class="dropdown menu-btn">-->
+            <!--<button  href="#" class="dropdown-toggle menu-btn" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">-->
+                <!--<span class="glyphicon glyphicon-picture" aria-hidden="true"></span>-->
+            <!--</button>-->
+            <!--<ul id="toolselectMenu" class="dropdown-menu" aria-labelledby="toolselect">-->
+                <!--<li><a href="javascript:uploadImage()">-->
+                        <!--<span class="glyphicon glyphicon-upload" aria-hidden="true"></span>-->
+                    <!--</a></li>-->
+                <!--<li><a href="javascript:deleteImage()">-->
+                        <!--<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>-->
+                    <!--</a></li>-->
+            <!--</ul>-->
+        <!--</div>-->
+    </div>
+    <div id="messageAlert">
+        <div class="alert alert-warning alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <span id="messageContent"></span>
+        </div>
+    </div>
+    <div id="canvas-wrapper">
+        <canvas id="canvas1"></canvas>
+    </div>
+    <div id="image-wrapper">
+        <div class="canvas-image">
+            <form>
+                <div id="imagezone" class="dropzone" data-width="600" data-small="true" data-ghost = "false"  data-originalsize="true" data-height="300" data-url="canvas.php"  data-download = "true" data-image="/images/test.png"  data-editstart="true" data-dimensionsonly="true">
+                    <input type="file" name="thumb" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--<script>$('.dropzone').html5imageupload();</script>-->
+
+</body>
+</html>
