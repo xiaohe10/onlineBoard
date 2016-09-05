@@ -19,7 +19,7 @@
         var roomID = '<%=room%>';
         var username = '<%=name%>'
         $(document).ready(function() {
-            socket = io.connect('http://101.5.210.245:3000');
+            socket = io.connect('http://wechat.zuoyekong.com:3000');
             socket.on('connect', function (data) {
                 socket.emit('join', {'room': roomID, 'username': username});
 

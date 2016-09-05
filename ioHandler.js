@@ -187,6 +187,9 @@ var bind = function(io){
                 if(err){
                     return;
                 }
+                if(!room){
+                    return;
+                }
                 if(room.users.length >= 2) {
                     console.log(room.users,room.startTime);
                     if (room.startTime != null) {

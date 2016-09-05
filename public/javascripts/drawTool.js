@@ -41,6 +41,7 @@ defineDrawTool = function() {
         console.log(drawTool.state)
         //for(pathindex in data){
         drawTool.remotecache.push(data);
+       console.log(data);
         //}
 
         if (drawTool.state == "waiting") {
@@ -240,7 +241,8 @@ defineDrawTool = function() {
             this.lastpoint = point;
         };
         DrawTool.prototype.move = function (x, y) {
-            point = {
+            if(DrawTool.prototype.currentPath.length <=2){
+               point = {
                 "x": x,
                 "y": y,
                 "action": "move",
@@ -248,8 +250,15 @@ defineDrawTool = function() {
                 "radius": this.radius,
                 "color": this.color,
                 "brushcolor": this.brushcolor
-            };
-
+                };
+            }else{
+                point = {
+                    'x':x,
+                    "y":y,
+                    "action":"move"
+                }
+            }
+            
             if (this.lastpoint == null) {
                 return
             }
@@ -307,6 +316,7 @@ defineDrawTool = function() {
             };
             DrawTool.prototype.currentPath.push(point);
             if (this.state == "drawing") {
+                console.log('currentPath',DrawTool.prototype.currentPath);
                 socket.emit('push', {'path': DrawTool.prototype.currentPath, 'room': roomID});
                 //check remote cache
                 if (this.remotecache != null) {
@@ -446,17 +456,30 @@ defineDrawTool = function() {
             this.state = "remotedrawing"
             for (pathindex in paths) {
                 var path = paths[pathindex]
+                    firstMove = true;
+                console.log(path);
                 for (pointindex in path) {
                     var m = path[pointindex]
 
-                    if (m.action == 'down') {
+                   if (m.action == 'down') {
                         this.setColor(m.color);
                         this.setType(m.tool);
                         this.setSize(m.radius);
                         this.setBrushColor(m.brushcolor)
                         this.down(m.x, m.y)
                     }
-                    else if (m.action == 'move') {
+                   else if (m.action == 'move') {
+                        console.log(m)
+                        if(firstMove){
+                            firstMove=false;
+                       try{
+                        this.setColor(m.color);
+                        this.setType(m.tool);
+                        this.setSize(m.radius);
+                        this.setBrushColor(m.brushcolor);
+           
+                        }catch(err){}
+                        }
                         this.move(m.x, m.y)
                     }
                     else if (m.action == 'up') {
@@ -470,6 +493,7 @@ defineDrawTool = function() {
             this.state = "redrawing"
             for (key_of_path in this.moves) {
                 this.lastpoint = null;
+                firstMove = true;
                 var path = this.moves[key_of_path]
                 for (key_of_point in path) {
                     //console.log(m.x, m.y, m.action,m.tool, m.color, m.radius);
@@ -478,11 +502,23 @@ defineDrawTool = function() {
                     if (m.action == 'down') {
                         this.setColor(m.color);
                         this.setType(m.tool);
-                        this.setSize(m.radius);
+                       this.setSize(m.radius);
                         this.setBrushColor(m.brushcolor);
                         this.down(m.x, m.y)
                     }
                     else if (m.action == 'move') {
+                         if(firstMove){
+                         firstMove = false;
+                        try{
+                        this.setColor(m.color);
+                        this.setType(m.tool);
+                        this.setSize(m.radius);
+                        this.setBrushColor(m.brushcolor);
+           
+                        }catch(err){}
+                       
+                         }
+                       
                         this.move(m.x, m.y)
                     }
                     else {
