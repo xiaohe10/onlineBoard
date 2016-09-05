@@ -20,6 +20,51 @@ function startTick(){
 function finishLesson(){
     socket.emit('finishLesson',{'roomname':roomID});
 }
+var zoomlist = [0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,2,2.5,3.0];
+var currentzoom = 8;
+function bigger(){
+    console.log("bigger");
+    currentzoom ++;
+    if(currentzoom >= 20){currentzoom = 19;}
+    drawTool.zoom(zoomlist[currentzoom]);
+}
+function smaller(){
+    console.log("smaller");
+    currentzoom --;
+    if(currentzoom <= 0){currentzoom = 0;}
+    drawTool.zoom(zoomlist[currentzoom]);
+}
+var ismoving = false;
+function movecanvas(){
+    if(!ismoving){
+        ismoving = true;
+        $("#canvas-wrapper").mousedown(function(e){
+            var startX = e.pageX;
+            var startY = e.pageY;
+
+            $(this).mousemove(function(e) {
+                // var offsetX = e.pageX - startX;
+                // var offsetY = e.pageY - startY;
+                // console.log("offset",offsetX,offsetY);
+                return false;
+            });
+
+            $(this).one('mouseup', function(e) {
+                var offsetX = e.pageX - startX;
+                var offsetY = e.pageY - startY;
+                console.log("offset",offsetX,offsetY);
+                // drawTool.moveshape(offsetX,offsetY);
+                $().unbind();
+            });
+
+            // Only if you want to prevent text selection
+            return false;
+        })
+    }else{
+        ismoving = false;
+        $("#canvas1").unbind();
+    }
+}
 
 function setTool(tooltype){
     drawTool.setType(tooltype);

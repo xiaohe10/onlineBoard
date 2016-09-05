@@ -154,6 +154,7 @@ defineDrawTool = function() {
         DrawTool.prototype.remotecache = []
         DrawTool.prototype.currentPath = []
         DrawTool.prototype.state = 'drawing';
+        DrawTool.prototype.zoomfactor = 1;
         DrawTool.prototype.drawingModel = {
             'name': 'pen',
             'radius': 3,
@@ -180,6 +181,11 @@ defineDrawTool = function() {
              */
             DrawTool.prototype.bindMouseOrTouch();
         };
+        DrawTool.prototype.zoom = function(_zoomfactor){
+            DrawTool.prototype.zoomfactor = _zoomfactor;
+            DrawTool.prototype.resize();
+        };
+
         DrawTool.prototype.drawBrush = function (startx, starty, endx, endy, radius) {
             var start = {x: startx, y: starty}
             var end = {x: endx, y: endy}
@@ -229,10 +235,11 @@ defineDrawTool = function() {
                 var globalCompositeOperation = this.globalCompositeOperation;
                 $('canvas').draw({
                     fn: function (ctx) {
+                        // ctx.scale(2,2);
                         ctx.beginPath();
                         ctx.globalCompositeOperation = globalCompositeOperation;
                         ctx.fillStyle = color;
-                        ctx.arc(point.x, point.y, radius / 2, 0, 2 * Math.PI);
+                        ctx.arc(point.x * DrawTool.prototype.zoomfactor, point.y * DrawTool.prototype.zoomfactor, radius / 2, 0, 2 * Math.PI);
                         ctx.fill();
                         ctx.closePath();
                     }
@@ -277,19 +284,20 @@ defineDrawTool = function() {
                 var lineJoin = this.lineJoin;
                 var globalCompositeOperation = this.globalCompositeOperation;
                 if (this.name == "pen") {
-                    this.drawBrush(from.x, from.y, to.x, to.y, radius);
+                    this.drawBrush(from.x*DrawTool.prototype.zoomfactor, from.y*DrawTool.prototype.zoomfactor, to.x*DrawTool.prototype.zoomfactor, to.y*DrawTool.prototype.zoomfactor, radius);
                 }
                 else {
                     $('canvas').draw({
                         fn: function (ctx) {
+                            // ctx.scale(2,2);
                             ctx.beginPath();
                             ctx.globalCompositeOperation = globalCompositeOperation;
                             ctx.strokeStyle = color;
                             ctx.lineCap = lineCap;
                             ctx.lineJoin = lineJoin;
                             ctx.lineWidth = radius;
-                            ctx.moveTo(from.x, from.y);
-                            ctx.lineTo(to.x, to.y);
+                            ctx.moveTo(from.x * DrawTool.prototype.zoomfactor, from.y*DrawTool.prototype.zoomfactor);
+                            ctx.lineTo(to.x*DrawTool.prototype.zoomfactor, to.y*DrawTool.prototype.zoomfactor);
                             ctx.stroke();
                             ctx.closePath();
                         }
@@ -361,33 +369,33 @@ defineDrawTool = function() {
             //
             prot = DrawTool.prototype;
             this.wrapper.mousedown(function (e) {
-                DrawTool.prototype.down(e.clientX - prot.offsetX, e.clientY - prot.offsetY)
+                DrawTool.prototype.down((e.clientX - prot.offsetX )/DrawTool.prototype.zoomfactor, (e.clientY - prot.offsetY)/DrawTool.prototype.zoomfactor)
             });
             this.wrapper.mousemove(function (e) {
-                    DrawTool.prototype.move(e.clientX - prot.offsetX, e.clientY - prot.offsetY)
+                    DrawTool.prototype.move((e.clientX - prot.offsetX)/DrawTool.prototype.zoomfactor, (e.clientY - prot.offsetY)/DrawTool.prototype.zoomfactor)
                 }
             );
             this.wrapper.mouseup(function (e) {
-                DrawTool.prototype.up(e.clientX - prot.offsetX, e.clientY - prot.offsetY)
+                DrawTool.prototype.up((e.clientX - prot.offsetX)/DrawTool.prototype.zoomfactor, (e.clientY - prot.offsetY)/DrawTool.prototype.zoomfactor)
             });
             this.wrapper.mouseleave(function (e) {
-                DrawTool.prototype.up(e.clientX - prot.offsetX, e.clientY - prot.offsetY)
+                DrawTool.prototype.up((e.clientX - prot.offsetX)/DrawTool.prototype.zoomfactor, (e.clientY - prot.offsetY)/DrawTool.prototype.zoomfactor);
             });
 
             //$("body").on('vmousedown',function(e){
             //    e.preventDefault();
             //});
             this.wrapper.on('vmousedown', function (e) {
-                DrawTool.prototype.down(e.clientX - prot.offsetX, e.clientY - prot.offsetY);
+                DrawTool.prototype.down((e.clientX - prot.offsetX)/DrawTool.prototype.zoomfactor, (e.clientY - prot.offsetY)/DrawTool.prototype.zoomfactor);
                 e.preventDefault();
             });
             this.wrapper.on('vmousemove', function (e) {
-                    DrawTool.prototype.move(e.clientX - prot.offsetX, e.clientY - prot.offsetY);
+                    DrawTool.prototype.move((e.clientX - prot.offsetX)/DrawTool.prototype.zoomfactor, (e.clientY - prot.offsetY)/DrawTool.prototype.zoomfactor);
                     e.preventDefault();
                 }
             );
             this.wrapper.on('vmouseup', function (e) {
-                DrawTool.prototype.up(e.clientX - prot.offsetX, e.clientY - prot.offsetY)
+                DrawTool.prototype.up((e.clientX - prot.offsetX)/DrawTool.prototype.zoomfactor, (e.clientY - prot.offsetY)/DrawTool.prototype.zoomfactor)
             });
             //this.wrapper.on('vmouseout',function(e){
             //    DrawTool.prototype.up(e.clientX-prot.offsetX, e.clientY-prot.offsetY)
